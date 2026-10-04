@@ -39,7 +39,25 @@ export function buildPlan(q, municipality, originMunicipality) {
   });
 
   if (q.residence === "si") {
-    if (originMunicipality?.id === "torino" && q.oldHome === "affitto") {
+    const oldHomeOutcome = q.oldHomeOutcome || "non_so";
+
+    if (oldHomeOutcome === "mantengo") {
+      plan.push({
+        id: "tari-vecchia", kind: "verify", cat: "Tasse locali", title: "TARI della vecchia casa mantenuta",
+        when: "Con il trasferimento", timing: "verifica prima del cambio di residenza",
+        text: "Stai mantenendo la vecchia casa: non considerare automaticamente chiusa la posizione TARI. Verifica con il Comune di partenza se il tributo continua a essere dovuto.",
+        why: "Il trasferimento di residenza non implica necessariamente la cessazione della TARI quando continui a mantenere la disponibilità dell'immobile.",
+        link: originMunicipality?.tariUrl, sourceLabel: originMunicipality?.name || "Comune di partenza"
+      });
+    } else if (oldHomeOutcome === "non_so") {
+      plan.push({
+        id: "tari-vecchia", kind: "verify", cat: "Tasse locali", title: "Cosa succede alla TARI della vecchia casa?",
+        when: "Prima del trasloco", timing: "chiarisci la situazione prima di chiudere o modificare la posizione",
+        text: "Hai indicato che non hai ancora deciso cosa fare della vecchia casa. Verifica con il Comune di partenza se devi cessare, modificare o mantenere la posizione TARI.",
+        why: "L'adempimento dipende da cosa accade alla vecchia abitazione e dalla sua disponibilità dopo il trasferimento.",
+        link: originMunicipality?.tariUrl, sourceLabel: originMunicipality?.name || "Comune di partenza"
+      });
+    } else if (originMunicipality?.id === "torino" && q.oldHome === "affitto" && oldHomeOutcome === "lascio") {
       plan.push({
         id: "tari-vecchia", kind: "dont", cat: "Tasse locali", title: "Cessazione TARI a Torino",
         when: "Non devi farlo", timing: "se lasci la vecchia abitazione e completi il cambio di residenza",
@@ -47,15 +65,25 @@ export function buildPlan(q, municipality, originMunicipality) {
         why: "La Città di Torino prevede questo automatismo per il trasferimento in un altro Comune italiano.",
         link: "https://www.comune.torino.it/domande-frequenti/cessazione-servizio-tari-utenze-domestiche", sourceLabel: "Comune di Torino"
       });
-    } else {
+    } else if (oldHomeOutcome === "lascio") {
       plan.push({
-        id: "tari-vecchia", kind: "verify", cat: "Tasse locali", title: "Situazione TARI della vecchia casa",
+        id: "tari-vecchia", kind: "verify", cat: "Tasse locali", title: "Cessazione TARI della vecchia casa",
         when: "Con il trasferimento",
-        timing: q.oldHome === "affitto" ? "con la chiusura della locazione" : "prima o contestualmente al trasferimento",
+        timing: q.oldHome === "affitto"
+          ? "quando termina la locazione"
+          : "in occasione del trasferimento o della cessione dell'immobile",
         text: q.oldHome === "affitto"
           ? "Verifica la cessazione della TARI collegata alla vecchia abitazione quando termina la locazione."
-          : "Verifica la posizione TARI della vecchia abitazione: se ne mantieni la disponibilità, il tributo può continuare a essere dovuto.",
-        why: "Le modalità di cessazione non sono uguali in tutti i Comuni e dipendono anche dalla disponibilità dell'immobile.",
+          : "Verifica con il Comune di partenza la cessazione della TARI collegata alla vecchia abitazione in seguito al trasferimento o alla cessione dell'immobile.",
+        why: "Le modalità di cessazione TARI sono locali e dipendono anche dal titolo con cui occupi o detieni l'immobile.",
+        link: originMunicipality?.tariUrl, sourceLabel: originMunicipality?.name || "Comune di partenza"
+      });
+    } else if (oldHomeOutcome === "vendo") {
+      plan.push({
+        id: "tari-vecchia", kind: "verify", cat: "Tasse locali", title: "TARI della casa venduta",
+        when: "Con la vendita", timing: "coordina la cessazione con la data di trasferimento dell'immobile",
+        text: "Se vendi la vecchia casa, verifica con il Comune di partenza la cessazione della posizione TARI in relazione alla data in cui perdi la disponibilità dell'immobile.",
+        why: "La vendita e la data effettiva di cessazione della disponibilità dell'immobile incidono sulla posizione TARI.",
         link: originMunicipality?.tariUrl, sourceLabel: originMunicipality?.name || "Comune di partenza"
       });
     }
