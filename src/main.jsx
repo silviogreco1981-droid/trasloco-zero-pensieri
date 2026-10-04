@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
 import { MUNICIPALITIES } from "./data.js";
@@ -13,10 +13,9 @@ const initial = {
 
 function App() {
   const [q, setQ] = useState(initial);
-  const [interestOpen, setInterestOpen] = useState(false);
-  const [interestSent, setInterestSent] = useState(false);
-  const [interestEmail, setInterestEmail] = useState("");
-  const [priceInterest, setPriceInterest] = useState("si");
+  const [paid, setPaid] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
   const [done, setDone] = useState(false);
   const municipality = MUNICIPALITIES.find(x => x.id === q.to);
   const originMunicipality = MUNICIPALITIES.find(x => x.id === q.from);
@@ -30,12 +29,23 @@ function App() {
 
   const canContinue = q.from && q.to && q.from !== q.to && q.date;
 
+  useEffect(() => {
+    try { const saved = localStorage.getItem("tzp:questionnaire"); if (saved) setQ(JSON.parse(saved)); } catch (_) {}
+    const sessionId = new URLSearchParams(window.location.search).get("session_id");
+    if (!sessionId) return;
+    fetch(`/api/verify-checkout-session?session_id=${encodeURIComponent(sessionId)}`)
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("Pagamento non verificato")))
+      .then(result => { if (result.paid) { setPaid(true); setDone(true); window.history.replaceState({}, "", window.location.pathname); } })
+      .catch(() => setCheckoutError("Non è stato possibile verificare subito il pagamento. Ricarica la pagina tra qualche secondo."));
+  }, []);
+
   function update(name, value) {
     setQ(prev => ({ ...prev, [name]: value }));
   }
 
   function submit() {
     if (!canContinue) return;
+    localStorage.setItem("tzp:questionnaire", JSON.stringify(q));
     setDone(true);
     window.dispatchEvent(new CustomEvent("tzp:plan_created", { detail: { municipality: q.to } }));
   }
@@ -152,7 +162,7 @@ function App() {
 
             {["do", "dont", "verify"].map(kind => {
               const allItems = plan.filter(x => x.kind === kind);
-              const items = allItems.slice(0, 3);
+              const items = paid ? allItems : allItems.slice(0, 3);
               if (!items.length) return null;
               return (
                 <div className={"group group-" + kind} key={kind}>
@@ -179,72 +189,45 @@ function App() {
                       </div>
                     </article>
                   ))}
-                  {allItems.length > items.length && <div className="moreTasks">+ altre {allItems.length - items.length} attività nel piano completo</div>}
+                  {!paid && allItems.length > items.length && <div className="moreTasks">+ altre {allItems.length - items.length} attività nel piano completo</div>}
                 </div>
               );
             })}
 
-            <div className="paywall">
-              <p className="eyebrow">IL TUO PIANO COMPLETO È PRONTO</p>
-              <h2>Tutto il resto, senza doverlo cercare da solo.</h2>
-              <p>Il piano completo contiene tutte le attività selezionate per te, le procedure locali, le scadenze, i documenti necessari e una versione scaricabile.</p>
-              <div className="price"><strong>6,90 €</strong><span>una tantum · nessun abbonamento</span></div>
-              {!interestOpen && !interestSent && (
-                <>
-                  <button onClick={() => {
-                    setInterestOpen(true);
-                    window.dispatchEvent(new CustomEvent("tzp:checkout_interest", { detail: { municipality: q.to, tasks: plan.length } }));
-                  }}>Voglio il piano completo a 6,90 € →</button>
-                  <small>Stiamo facendo il primo test di mercato. Nessun pagamento ora.</small>
-                </>
-              )}
-
-              {interestOpen && !interestSent && (
-                <div className="interestBox">
-                  <strong>Ti interessa davvero averlo?</strong>
-                  <p>Lasciaci la tua email: ti contatteremo quando il piano completo sarà disponibile a 6,90 €. Non effettuiamo alcun addebito.</p>
-                  <label>
-                    <span>Email</span>
-                    <input type="email" value={interestEmail} onChange={e => setInterestEmail(e.target.value)} placeholder="nome@email.it" />
-                  </label>
-                  <div className="interestChoices">
-                    <button type="button" className={priceInterest === "si" ? "selected" : ""} onClick={() => setPriceInterest("si")}>Sì, 6,90 € mi va bene</button>
-                    <button type="button" className={priceInterest === "forse" ? "selected" : ""} onClick={() => setPriceInterest("forse")}>Ci penserei</button>
-                    <button type="button" className={priceInterest === "no" ? "selected" : ""} onClick={() => setPriceInterest("no")}>No</button>
-                  </div>
-                  <button disabled={!interestEmail || !interestEmail.includes("@")} onClick={async () => {
-                    try {
-                      const body = new URLSearchParams({
-                        "form-name": "market-test",
-                        email: interestEmail,
-                        municipality: q.to,
-                        from: q.from,
-                        move_date: q.date,
-                        price_interest: priceInterest
-                      });
-                      const response = await fetch("/", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body
-                      });
-                      if (!response.ok) throw new Error("Invio non riuscito");
-                      setInterestSent(true);
-                    } catch (error) {
-                      console.error(error);
-                      alert("Non siamo riusciti a registrare la richiesta. Riprova.");
-                    }
-                  }}>Conferma interesse →</button>
-                  <small>Nessun pagamento. Ti stiamo chiedendo solo un segnale di interesse.</small>
-                </div>
-              )}
-
-              {interestSent && (
-                <div className="interestBox success">
-                  <strong>Interesse registrato.</strong>
-                  <p>Grazie. Hai appena contribuito al primo test di mercato di Trasloco Zero Pensieri.</p>
-                </div>
-              )}
-            </div>
+            {!paid ? (
+              <div className="paywall">
+                <p className="eyebrow">IL TUO PIANO COMPLETO È PRONTO</p>
+                <h2>Tutto il resto, senza doverlo cercare da solo.</h2>
+                <p>Il piano completo contiene tutte le attività selezionate per te, le procedure locali, le scadenze, i documenti necessari e una versione scaricabile.</p>
+                <div className="price"><strong>6,90 €</strong><span>una tantum · nessun abbonamento</span></div>
+                <button disabled={checkoutLoading} onClick={async () => {
+                  setCheckoutLoading(true);
+                  setCheckoutError("");
+                  try {
+                    const response = await fetch("/api/create-checkout-session", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ municipality: q.to })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.url) throw new Error(data.error || "Checkout non disponibile");
+                    window.location.href = data.url;
+                  } catch (error) {
+                    console.error(error);
+                    setCheckoutError("Il pagamento non è disponibile in questo momento. Riprova tra poco.");
+                    setCheckoutLoading(false);
+                  }
+                }}>{checkoutLoading ? "Apertura pagamento…" : "Ottieni il piano completo →"}</button>
+                <small>Pagamento unico di 6,90 €. Nessun abbonamento.</small>
+                {checkoutError && <p className="formError">{checkoutError}</p>}
+              </div>
+            ) : (
+              <div className="paywall success">
+                <p className="eyebrow">PIANO COMPLETO SBLOCCATO</p>
+                <h2>Ora hai tutto il tuo piano.</h2>
+                <p>Qui sopra trovi tutte le attività personalizzate per il tuo trasferimento, con scadenze e fonti ufficiali.</p>
+              </div>
+            )}
 
             <button className="back" onClick={() => setDone(false)}>← Modifica le risposte</button>
           </section>
