@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
-import { MUNICIPALITIES } from "./data";
-import { buildPlan } from "./plan";
+import { MUNICIPALITIES } from "./data.js";
+import { buildPlan } from "./plan.js";
 
 const initial = {
   from: "", to: "", date: "",
@@ -120,9 +120,9 @@ function App() {
       ) : (
         <>
           <section className="resultHead">
-            <p className="eyebrow">IL TUO PIANO</p>
+            <p className="eyebrow">IL TUO PIANO PERSONALIZZATO</p>
             <h1>Trasferimento a {municipality.name}</h1>
-            <p className="lead">Abbiamo selezionato le attività più rilevanti per la tua situazione e le abbiamo ordinate intorno alla data del trasloco.</p>
+            <p className="lead">Non una checklist generica: abbiamo selezionato gli adempimenti in base alle risposte che ci hai dato.</p>
             <div className="stats">
               <Stat n={counts.do} t="Da fare" />
               <Stat n={counts.dont} t="Non devi fare" />
@@ -131,47 +131,65 @@ function App() {
           </section>
 
           <section className="plan">
+            <div className="personalSummary">
+              <div>
+                <span className="summaryLabel">IL TUO TRASLOCO</span>
+                <strong>{municipality.name}</strong>
+              </div>
+              <div>
+                <span className="summaryLabel">DATA</span>
+                <strong>{q.date ? new Date(q.date + "T12:00:00").toLocaleDateString("it-IT", {day:"numeric", month:"long", year:"numeric"}) : "Da definire"}</strong>
+              </div>
+              <div>
+                <span className="summaryLabel">VECCHIA CASA</span>
+                <strong>{q.oldHomeOutcome === "mantengo" ? "La mantieni" : q.oldHomeOutcome === "vendo" ? "La vendi" : q.oldHomeOutcome === "non_so" ? "Da decidere" : "La lasci"}</strong>
+              </div>
+            </div>
+
             {["do", "dont", "verify"].map(kind => {
               const allItems = plan.filter(x => x.kind === kind);
-              const items = allItems.filter((x, index) => index < 2);
+              const items = allItems.slice(0, 3);
               if (!items.length) return null;
               return (
-                <div className="group" key={kind}>
-                  <h2>{kind === "do" ? "🔴 Queste sono le cose che devi fare" : kind === "dont" ? "🟢 Queste sono le cose che non devi fare" : "🟠 Queste sono le cose da verificare"}</h2>
+                <div className={"group group-" + kind} key={kind}>
+                  <div className="groupTitle">
+                    <div>
+                      <span className="groupKicker">{kind === "do" ? "AZIONI" : kind === "dont" ? "RISPARMIATI QUESTO PASSAGGIO" : "ATTENZIONE"}</span>
+                      <h2>{kind === "do" ? "Queste sono le cose che devi fare" : kind === "dont" ? "Queste sono le cose che non devi fare" : "Queste sono le cose da verificare"}</h2>
+                    </div>
+                    <span className="groupCount">{allItems.length}</span>
+                  </div>
                   {items.map(x => (
                     <article key={x.id}>
-                      <div>
+                      <div className="taskMain">
                         <span className="tag">{x.cat}</span>
                         <h3>{x.title}</h3>
                         <p>{x.text}</p>
-                        <small>{x.why}</small>
+                        <small><b>Perché:</b> {x.why}</small>
                       </div>
                       <div className="when">
+                        <span className="whenLabel">QUANDO</span>
                         <strong>{x.when}</strong>
                         {x.timing && <span>{x.timing}</span>}
                         {x.link && <a href={x.link} target="_blank" rel="noreferrer">{x.sourceLabel || "Fonte ufficiale"} ↗</a>}
                       </div>
                     </article>
                   ))}
+                  {allItems.length > items.length && <div className="moreTasks">+ altre {allItems.length - items.length} attività nel piano completo</div>}
                 </div>
               );
             })}
 
-            {plan.length > 6 && (
-              <div className="lockedNotice">
-                Nel tuo piano completo ci sono altre <strong>{plan.length - 6}</strong> attività selezionate per la tua situazione.
-              </div>
-            )}
-
             <div className="paywall">
               <p className="eyebrow">IL TUO PIANO COMPLETO È PRONTO</p>
-              <h2>{plan.length} attività, ordinate intorno al tuo trasloco.</h2>
-              <p>Il piano completo aggiunge tutte le attività, le procedure locali, le scadenze dettagliate, i documenti necessari e una versione scaricabile.</p>
-              <strong>6,90 €</strong>
+              <h2>Tutto il resto, senza doverlo cercare da solo.</h2>
+              <p>Il piano completo contiene tutte le attività selezionate per te, le procedure locali, le scadenze, i documenti necessari e una versione scaricabile.</p>
+              <div className="price"><strong>6,90 €</strong><span>una tantum · nessun abbonamento</span></div>
               <button onClick={() => {
                 window.dispatchEvent(new CustomEvent("tzp:checkout_interest", { detail: { municipality: q.to, tasks: plan.length } }));
                 alert("Interesse registrato. Il checkout reale sarà attivato nella fase di validazione.");
-              }}>Ottieni il piano completo</button>
+              }}>Ottieni il piano completo →</button>
+              <small>Pagamento unico. Nessun rinnovo automatico.</small>
             </div>
 
             <button className="back" onClick={() => setDone(false)}>← Modifica le risposte</button>
