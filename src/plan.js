@@ -24,7 +24,7 @@ export function buildPlan(q, municipality, originMunicipality) {
       id: "residenza", kind: "do", cat: "Residenza", title: "Cambio di residenza",
       when: "Entro " + relativeDate(moveDate, 20),
       timing: "entro 20 giorni dal trasferimento",
-      text: "Presenta la dichiarazione di cambio di residenza al nuovo Comune tramite ANPR.",
+      text: q.newHome === "affitto" ? "Presenta la dichiarazione di cambio di residenza al nuovo Comune tramite ANPR, indicando il titolo di occupazione della nuova abitazione e conservando il contratto di locazione." : "Presenta la dichiarazione di cambio di residenza al nuovo Comune tramite ANPR, indicando il titolo di occupazione della nuova abitazione e conservando la documentazione che dimostra la disponibilità dell’immobile.",
       why: "La dichiarazione deve essere presentata entro 20 giorni dal trasferimento.",
       link: municipality?.residenceUrl || GENERAL_SOURCES.anpr, sourceLabel: municipality?.name || "ANPR"
     });
@@ -33,7 +33,7 @@ export function buildPlan(q, municipality, originMunicipality) {
   plan.push({
     id: "tari-nuova", kind: "verify", cat: "Tasse locali", title: "TARI della nuova casa",
     when: "Prima del trasloco", timing: "verifica la procedura del Comune di arrivo",
-    text: municipality?.tariNote || "Verifica come dichiarare la nuova occupazione dell'abitazione nel Comune di arrivo.",
+    text: municipality?.id === "torino" && q.residence === "si" ? "A Torino, se trasferisci qui la residenza, la pratica anagrafica contiene già i dati TARI: l’attivazione della nuova posizione avviene automaticamente." : (municipality?.tariNote || "Verifica come dichiarare la nuova occupazione dell'abitazione nel Comune di arrivo.") + (q.newHome === "affitto" ? " La nuova casa è in affitto: conserva il contratto di locazione." : " La nuova casa è di proprietà: conserva la documentazione dell'immobile necessaria alla pratica."),
     why: "La procedura e le scadenze TARI sono locali e dipendono dalla situazione dell'immobile.",
     link: municipality?.tariUrl, sourceLabel: municipality?.name || "Comune"
   });
@@ -57,12 +57,12 @@ export function buildPlan(q, municipality, originMunicipality) {
         why: "L'adempimento dipende da cosa accade alla vecchia abitazione e dalla sua disponibilità dopo il trasferimento.",
         link: originMunicipality?.tariUrl, sourceLabel: originMunicipality?.name || "Comune di partenza"
       });
-    } else if (originMunicipality?.id === "torino" && q.oldHome === "affitto" && oldHomeOutcome === "lascio") {
+    } else if (originMunicipality?.id === "torino" && oldHomeOutcome === "lascio") {
       plan.push({
         id: "tari-vecchia", kind: "dont", cat: "Tasse locali", title: "Cessazione TARI a Torino",
         when: "Non devi farlo", timing: "se lasci la vecchia abitazione e completi il cambio di residenza",
         text: "Se trasferisci la residenza fuori Torino e lasci la vecchia abitazione, la cessazione TARI avviene automaticamente con la definizione della pratica di residenza.",
-        why: "La Città di Torino prevede questo automatismo per il trasferimento in un altro Comune italiano.",
+        why: "La Città di Torino prevede la cessazione automatica della TARI quando il trasferimento di residenza avviene fuori Torino e la pratica di residenza nel nuovo Comune viene definita.",
         link: "https://www.comune.torino.it/domande-frequenti/cessazione-servizio-tari-utenze-domestiche", sourceLabel: "Comune di Torino"
       });
     } else if (oldHomeOutcome === "lascio") {

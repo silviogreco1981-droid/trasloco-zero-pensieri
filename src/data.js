@@ -9,7 +9,7 @@ export const MUNICIPALITIES = [
   {
     id: "roma",
     name: "Roma",
-    residenceUrl: "https://www.marcoaurelio.comune.roma.it/w/anagrafe-nazionale-attivo-in-tutta-italia-il-cambio-di-residenza-online",
+    residenceUrl: "https://www.comune.roma.it/web/it/scheda-servizi.page?contentId=INF879978",
     tariUrl: "https://www.comune.roma.it/web-resources/cms/documents/FAQ_TARI_2025_agg.pdf",
     tariNote: "A Roma le regole TARI dipendono dalla situazione dell'immobile; verifica le dichiarazioni richieste per nuova occupazione e cessazione."
   },
@@ -30,7 +30,7 @@ export const MUNICIPALITIES = [
   {
     id: "firenze",
     name: "Firenze",
-    residenceUrl: "https://servizi.comune.fi.it/sites/www.comune.fi.it/files/vademecum_migranti_2024.pdf",
+    residenceUrl: "https://servizi.comune.fi.it/node/25431/backlinks",
     tariUrl: "https://servizi.comune.fi.it/sites/www.comune.fi.it/files/vademecum_migranti_2024.pdf",
     tariNote: "A Firenze verifica gli adempimenti TARI relativi all'occupazione e alla cessazione degli immobili."
   }
