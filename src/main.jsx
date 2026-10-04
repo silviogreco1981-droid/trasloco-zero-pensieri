@@ -127,7 +127,11 @@ function App() {
 
           <section className="plan">
             {["do", "dont", "verify"].map(kind => {
-              const items = plan.filter(x => x.kind === kind);
+              const allItems = plan.filter(x => x.kind === kind);
+              const items = allItems.filter((x, index) => {
+                if (kind === "dont") return index < 2;
+                return index < 2;
+              });
               if (!items.length) return null;
               return (
                 <div className="group" key={kind}>
@@ -151,10 +155,16 @@ function App() {
               );
             })}
 
+            {plan.length > 6 && (
+              <div className="lockedNotice">
+                Nel tuo piano completo ci sono altre <strong>{plan.length - 6}</strong> attività selezionate per la tua situazione.
+              </div>
+            )}
+
             <div className="paywall">
               <p className="eyebrow">IL TUO PIANO COMPLETO È PRONTO</p>
-              <h2>Abbiamo trovato {plan.length} attività per la tua situazione.</h2>
-              <p>Nel piano completo aggiungeremo le procedure locali, le scadenze dettagliate, i documenti necessari e una versione scaricabile.</p>
+              <h2>{plan.length} attività, ordinate intorno al tuo trasloco.</h2>
+              <p>Il piano completo aggiunge tutte le attività, le procedure locali, le scadenze dettagliate, i documenti necessari e una versione scaricabile.</p>
               <strong>6,90 €</strong>
               <button onClick={() => {
                 window.dispatchEvent(new CustomEvent("tzp:checkout_interest", { detail: { municipality: q.to, tasks: plan.length } }));
