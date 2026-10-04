@@ -68,8 +68,8 @@ export function buildPlan(q, municipality, originMunicipality) {
         cat: "Tasse locali",
         title: "Chiusura TARI della vecchia casa",
         when: "Con il trasferimento",
-        timing: "verifica la procedura del Comune che lasci",
-        text: "Verifica con il Comune di partenza come cessare la posizione TARI della vecchia abitazione.",
+        timing: q.oldHome === "affitto" ? "con la chiusura della locazione" : "prima o contestualmente al trasferimento",
+        text: q.oldHome === "affitto" ? "Verifica la cessazione della TARI collegata alla vecchia abitazione e la chiusura del rapporto di locazione." : "Verifica la posizione TARI della vecchia abitazione: se ne mantieni la disponibilità, il tributo può continuare a essere dovuto.",
         why: "Le modalità di cessazione non sono uguali in tutti i Comuni.",
         link: originMunicipality?.tariUrl,
         sourceLabel: originMunicipality?.name || "Comune di partenza"
