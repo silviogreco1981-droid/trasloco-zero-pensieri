@@ -6,6 +6,9 @@
     "preview": "vite preview",
     "test": "node --test"
   },
+  "dependencies": {
+    "stripe": "^18.5.0"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
