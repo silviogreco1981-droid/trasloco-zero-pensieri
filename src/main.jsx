@@ -15,7 +15,8 @@ function App() {
   const [q, setQ] = useState(initial);
   const [done, setDone] = useState(false);
   const municipality = MUNICIPALITIES.find(x => x.id === q.to);
-  const plan = useMemo(() => done ? buildPlan(q, municipality) : [], [done, q, municipality]);
+  const originMunicipality = MUNICIPALITIES.find(x => x.id === q.from);
+  const plan = useMemo(() => done ? buildPlan(q, municipality, originMunicipality) : [], [done, q, municipality, originMunicipality]);
 
   const counts = {
     do: plan.filter(x => x.kind === "do").length,
