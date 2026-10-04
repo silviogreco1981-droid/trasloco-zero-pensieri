@@ -114,7 +114,7 @@ export function buildPlan(q, municipality, originMunicipality) {
       cat: "Casa",
       title: "Internet e telefono",
       when: "Prima del trasloco",
-      timing: relativeDate(moveDate, -14, "Verifica entro "),
+      timing: "prima della data del trasloco",
       text: "Controlla se il contratto può essere trasferito al nuovo indirizzo e quali sono i tempi di attivazione.",
       why: "Un trasferimento può richiedere tempi tecnici oppure una nuova attivazione.",
       link: "",
@@ -177,7 +177,7 @@ export function buildPlan(q, municipality, originMunicipality) {
       cat: "Famiglia",
       title: "Scuola e servizi per i figli",
       when: "Prima del trasloco",
-      timing: relativeDate(moveDate, -30, "Verifica entro "),
+      timing: "prima del trasferimento",
       text: "Verifica se il cambio di Comune incide su scuola, mensa, trasporto scolastico o altri servizi locali.",
       why: "I servizi sono gestiti localmente e possono richiedere aggiornamenti separati."
     });
@@ -190,7 +190,7 @@ export function buildPlan(q, municipality, originMunicipality) {
       cat: "Animali",
       title: "Dati dell'animale",
       when: "Prima del trasloco",
-      timing: relativeDate(moveDate, -14, "Verifica entro "),
+      timing: "prima del trasferimento",
       text: "Verifica che i dati di contatto associati all'animale siano aggiornati secondo le regole della tua Regione.",
       why: "La gestione dell'anagrafe degli animali è regionale."
     });
