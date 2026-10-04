@@ -11,8 +11,5 @@
     "vite": "latest",
     "react": "latest",
     "react-dom": "latest"
-  },
-  "dependencies": {
-    "stripe": "^18.5.0"
   }
 }
