@@ -31,7 +31,7 @@ export const MUNICIPALITIES = [
     id: "firenze",
     name: "Firenze",
     residenceUrl: "https://servizi.comune.fi.it/node/25431/backlinks",
-    tariUrl: "https://servizi.comune.fi.it/sites/www.comune.fi.it/files/vademecum_migranti_2024.pdf",
+    tariUrl: "https://sociale.comune.fi.it/system/files/2025-12/vademecum-migranti2025_0.pdf",
     tariNote: "A Firenze verifica gli adempimenti TARI relativi all'occupazione e alla cessazione degli immobili."
   }
 ];
