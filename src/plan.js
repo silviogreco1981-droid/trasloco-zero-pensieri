@@ -15,7 +15,7 @@ function relativeDate(moveDate, days, prefix = "") {
   return prefix + formatDate(addDays(moveDate, days));
 }
 
-export function buildPlan(q, municipality) {
+export function buildPlan(q, municipality, originMunicipality) {
   const moveDate = q.date;
   const plan = [];
 
@@ -35,17 +35,47 @@ export function buildPlan(q, municipality) {
   }
 
   plan.push({
-    id: "tari",
+    id: "tari-nuova",
     kind: "verify",
     cat: "Tasse locali",
-    title: "TARI della vecchia e della nuova casa",
+    title: "TARI della nuova casa",
     when: "Prima del trasloco",
-    timing: "prima di lasciare la vecchia abitazione",
-    text: municipality?.tariNote || "Verifica iscrizione, cessazione o trasferimento della posizione TARI nelle due abitazioni.",
-    why: "La procedura non è identica in tutti i Comuni e può dipendere dal tipo di trasferimento e dalla disponibilità degli immobili.",
+    timing: "verifica la procedura del Comune di arrivo",
+    text: municipality?.tariNote || "Verifica come dichiarare la nuova occupazione dell'abitazione nel Comune di arrivo.",
+    why: "La procedura e le scadenze TARI sono locali e dipendono dalla situazione dell'immobile.",
     link: municipality?.tariUrl,
     sourceLabel: municipality?.name || "Comune"
   });
+
+  if (q.residence === "si") {
+    if (originMunicipality?.id === "torino") {
+      plan.push({
+        id: "tari-vecchia",
+        kind: "dont",
+        cat: "Tasse locali",
+        title: "Cessazione TARI a Torino",
+        when: "Non devi farlo",
+        timing: "se il cambio di residenza è completato",
+        text: "Se trasferisci la residenza fuori Torino e completi la pratica anagrafica, la cessazione TARI della vecchia abitazione avviene automaticamente.",
+        why: "La Città di Torino indica che per il trasferimento in un altro Comune italiano la cessazione avviene automaticamente a definizione della pratica di residenza.",
+        link: "https://www.comune.torino.it/domande-frequenti/cessazione-servizio-tari-utenze-domestiche",
+        sourceLabel: "Comune di Torino"
+      });
+    } else {
+      plan.push({
+        id: "tari-vecchia",
+        kind: "verify",
+        cat: "Tasse locali",
+        title: "Chiusura TARI della vecchia casa",
+        when: "Con il trasferimento",
+        timing: "verifica la procedura del Comune che lasci",
+        text: "Verifica con il Comune di partenza come cessare la posizione TARI della vecchia abitazione.",
+        why: "Le modalità di cessazione non sono uguali in tutti i Comuni.",
+        link: originMunicipality?.tariUrl,
+        sourceLabel: originMunicipality?.name || "Comune di partenza"
+      });
+    }
+  }
 
   if (q.car === "si" && q.residence === "si") {
     plan.push({
@@ -68,7 +98,7 @@ export function buildPlan(q, municipality) {
     cat: "Casa",
     title: "Utenze della nuova casa",
     when: "Prima del trasloco",
-    timing: relativeDate(moveDate, -14, "Entro "),
+    timing: "prima della data del trasloco",
     text: q.utilitiesActive === "si"
       ? "Chiedi al fornitore quale procedura serve per intestare le forniture: normalmente si tratta di una voltura se il contratto è ancora attivo."
       : "Verifica per ogni fornitura se serve un subentro o una nuova attivazione.",
