@@ -13,6 +13,8 @@ const initial = {
 
 function App() {
   const [q, setQ] = useState(initial);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [paymentState, setPaymentState] = useState(() => new URLSearchParams(window.location.search).get("payment"));
   const [done, setDone] = useState(false);
   const municipality = MUNICIPALITIES.find(x => x.id === q.to);
   const originMunicipality = MUNICIPALITIES.find(x => x.id === q.from);
@@ -119,6 +121,19 @@ function App() {
         </>
       ) : (
         <>
+          {paymentState === "success" && (
+            <div className="paymentMessage success">
+              <strong>Pagamento completato.</strong>
+              <span>Il tuo piano completo è stato acquistato.</span>
+            </div>
+          )}
+          {paymentState === "cancelled" && (
+            <div className="paymentMessage cancelled">
+              <strong>Pagamento annullato.</strong>
+              <span>Non è stato effettuato alcun addebito.</span>
+            </div>
+          )}
+
           <section className="resultHead">
             <p className="eyebrow">IL TUO PIANO PERSONALIZZATO</p>
             <h1>Trasferimento a {municipality.name}</h1>
@@ -185,11 +200,25 @@ function App() {
               <h2>Tutto il resto, senza doverlo cercare da solo.</h2>
               <p>Il piano completo contiene tutte le attività selezionate per te, le procedure locali, le scadenze, i documenti necessari e una versione scaricabile.</p>
               <div className="price"><strong>6,90 €</strong><span>una tantum · nessun abbonamento</span></div>
-              <button onClick={() => {
+              <button disabled={checkoutLoading} onClick={async () => {
+                setCheckoutLoading(true);
                 window.dispatchEvent(new CustomEvent("tzp:checkout_interest", { detail: { municipality: q.to, tasks: plan.length } }));
-                alert("Interesse registrato. Il checkout reale sarà attivato nella fase di validazione.");
-              }}>Ottieni il piano completo →</button>
-              <small>Pagamento unico. Nessun rinnovo automatico.</small>
+                try {
+                  const response = await fetch("/api/create-checkout-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ municipality: q.to, tasks: plan.length })
+                  });
+                  const data = await response.json();
+                  if (!response.ok || !data.url) throw new Error(data.error || "Checkout non disponibile");
+                  window.location.href = data.url;
+                } catch (error) {
+                  console.error(error);
+                  alert("Non è stato possibile avviare il pagamento. Riprova tra poco.");
+                  setCheckoutLoading(false);
+                }
+              }}>{checkoutLoading ? "Apertura pagamento..." : "Paga 6,90 € →"}</button>
+              <small>Pagamento unico tramite Stripe. Nessun rinnovo automatico.</small>
             </div>
 
             <button className="back" onClick={() => setDone(false)}>← Modifica le risposte</button>
