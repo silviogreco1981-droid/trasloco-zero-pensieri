@@ -1,4 +1,4 @@
-import { GENERAL_SOURCES } from "./data";
+import { GENERAL_SOURCES } from "./data.js";
 
 function addDays(date, days) {
   const d = new Date(date + "T12:00:00");
