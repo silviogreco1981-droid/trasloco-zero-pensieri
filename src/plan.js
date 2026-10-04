@@ -31,10 +31,18 @@ export function buildPlan(q, municipality, originMunicipality) {
   }
 
   plan.push({
-    id: "tari-nuova", kind: "verify", cat: "Tasse locali", title: "TARI della nuova casa",
-    when: "Prima del trasloco", timing: "verifica la procedura del Comune di arrivo",
-    text: municipality?.id === "torino" && q.residence === "si" ? "A Torino, se trasferisci qui la residenza, la pratica anagrafica contiene già i dati TARI: l’attivazione della nuova posizione avviene automaticamente." : (municipality?.tariNote || "Verifica come dichiarare la nuova occupazione dell'abitazione nel Comune di arrivo.") + (q.newHome === "affitto" ? " La nuova casa è in affitto: conserva il contratto di locazione." : " La nuova casa è di proprietà: conserva la documentazione dell'immobile necessaria alla pratica."),
-    why: "La procedura e le scadenze TARI sono locali e dipendono dalla situazione dell'immobile.",
+    id: "tari-nuova",
+    kind: municipality?.id === "torino" && q.residence === "si" ? "dont" : "verify",
+    cat: "Tasse locali",
+    title: municipality?.id === "torino" && q.residence === "si" ? "Attivazione TARI della nuova casa" : "TARI della nuova casa",
+    when: municipality?.id === "torino" && q.residence === "si" ? "Non devi presentare una pratica TARI separata" : "Prima del trasloco",
+    timing: municipality?.id === "torino" && q.residence === "si" ? "con il cambio di residenza" : "verifica la procedura del Comune di arrivo",
+    text: municipality?.id === "torino" && q.residence === "si"
+      ? "A Torino, se trasferisci qui la residenza, la variazione anagrafica viene comunicata anche ai fini TARI: non devi presentare una pratica TARI separata per l'attivazione della nuova posizione."
+      : (municipality?.tariNote || "Verifica come dichiarare la nuova occupazione dell'abitazione nel Comune di arrivo.") + (q.newHome === "affitto" ? " La nuova casa è in affitto: conserva il contratto di locazione." : " La nuova casa è di proprietà: conserva la documentazione dell'immobile necessaria alla pratica."),
+    why: municipality?.id === "torino" && q.residence === "si"
+      ? "La Città di Torino comunica la variazione anagrafica alla TARI per l'attivazione della nuova posizione."
+      : "La procedura e le scadenze TARI sono locali e dipendono dalla situazione dell'immobile.",
     link: municipality?.tariUrl, sourceLabel: municipality?.name || "Comune"
   });
 
@@ -129,7 +137,7 @@ export function buildPlan(q, municipality, originMunicipality) {
   if (q.residence === "si") {
     plan.push({
       id: "medico", kind: "verify", cat: "Salute", title: "Medico di base",
-      when: "Dopo il cambio", timing: relativeDate(moveDate, 5, "Da "),
+      when: "Dopo il cambio", timing: "dopo l'aggiornamento della residenza",
       text: "Verifica se il cambio di Comune richiede o rende opportuno scegliere un nuovo medico nel distretto di destinazione.",
       why: "La scelta del medico dipende dall'organizzazione sanitaria territoriale."
     });
@@ -151,7 +159,7 @@ export function buildPlan(q, municipality, originMunicipality) {
 
   plan.push({
     id: "comunicazioni", kind: "verify", cat: "Comunicazioni", title: "Indirizzi presso soggetti privati",
-    when: "Dopo il cambio", timing: relativeDate(moveDate, 5, "Da "),
+    when: "Dopo il cambio", timing: "dopo l'aggiornamento della residenza",
     text: "Controlla banca, assicurazioni, datore di lavoro e altri servizi per cui il vecchio indirizzo è ancora utilizzato.",
     why: "Gli aggiornamenti verso soggetti privati non sono necessariamente coperti dal cambio anagrafico."
   });
