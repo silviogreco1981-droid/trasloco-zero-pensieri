@@ -6,7 +6,7 @@ import { buildPlan } from "./plan";
 
 const initial = {
   from: "", to: "", date: "",
-  newHome: "affitto", oldHome: "affitto",
+  newHome: "affitto", oldHome: "affitto", oldHomeOutcome: "lascio",
   utilitiesActive: "si", internet: "si",
   car: "no", children: "no", pets: "no", residence: "si"
 };
@@ -82,6 +82,10 @@ function App() {
                 <Choice value={q.oldHome} set={v => update("oldHome", v)} opts={{ affitto: "In affitto", acquisto: "Di proprietà" }} />
               </Field>
 
+              <Field label="Cosa succede alla vecchia casa?">
+                <Choice value={q.oldHomeOutcome} set={v => update("oldHomeOutcome", v)} opts={{ lascia: "La lascio definitivamente", vendo: "La vendo", mantengo: "La mantengo", non_so: "Non lo so ancora" }} />
+              </Field>
+
               <Field label="Nella nuova casa le utenze sono già attive?">
                 <Choice value={q.utilitiesActive} set={v => update("utilitiesActive", v)} opts={{ si: "Sì", no: "No / non so" }} />
               </Field>
@@ -129,10 +133,7 @@ function App() {
           <section className="plan">
             {["do", "dont", "verify"].map(kind => {
               const allItems = plan.filter(x => x.kind === kind);
-              const items = allItems.filter((x, index) => {
-                if (kind === "dont") return index < 2;
-                return index < 2;
-              });
+              const items = allItems.filter((x, index) => index < 2);
               if (!items.length) return null;
               return (
                 <div className="group" key={kind}>

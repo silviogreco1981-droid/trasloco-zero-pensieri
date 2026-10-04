@@ -4,35 +4,35 @@ export const MUNICIPALITIES = [
     name: "Milano",
     residenceUrl: "https://www.comune.milano.it/servizi/anagrafe/cambio-di-residenza",
     tariUrl: "https://www.comune.milano.it/servizi/tributi/tari-dichiarazione-di-occupazione-di-appartamenti-e-immobili",
-    tariNote: "A Milano il cambio di situazione abitativa va dichiarato ai fini TARI; la cessazione della vecchia occupazione va verificata in base alla situazione delle utenze."
+    tariNote: "A Milano il cambio di situazione abitativa va dichiarato ai fini TARI; verifica sia la nuova occupazione sia la cessazione della vecchia, in base alla situazione dell'immobile."
   },
   {
     id: "roma",
     name: "Roma",
     residenceUrl: "https://www.marcoaurelio.comune.roma.it/w/anagrafe-nazionale-attivo-in-tutta-italia-il-cambio-di-residenza-online",
     tariUrl: "https://www.comune.roma.it/web-resources/cms/documents/FAQ_TARI_2025_agg.pdf",
-    tariNote: "A Roma le regole TARI dipendono dalla situazione dell'immobile; alcune variazioni anagrafiche sono acquisite d'ufficio, mentre cessazioni specifiche richiedono una dichiarazione."
+    tariNote: "A Roma le regole TARI dipendono dalla situazione dell'immobile; verifica le dichiarazioni richieste per nuova occupazione e cessazione."
   },
   {
     id: "torino",
     name: "Torino",
     residenceUrl: "https://www.comune.torino.it/servizi/richiedere-cambio-residenza-un-altro-comune-dallestero-seguito-cancellazione-per",
     tariUrl: "https://www.comune.torino.it/domande-frequenti/cessazione-servizio-tari-utenze-domestiche",
-    tariNote: "A Torino il cambio di residenza trasmette i dati agli uffici TARI; il trattamento della TARI dipende dalla situazione della nuova e della vecchia abitazione."
+    tariNote: "A Torino il trattamento TARI cambia in base alla situazione della vecchia e della nuova abitazione; per il trasferimento fuori città la cessazione può avvenire automaticamente con la pratica di residenza."
   },
   {
     id: "bologna",
     name: "Bologna",
     residenceUrl: "https://informazioni.comune.bologna.it/myportal/C_A944/api/content/download?id=668bb1223bf9500099e2e104",
     tariUrl: "https://tari.comune.bologna.it/?q=node%2F203",
-    tariNote: "A Bologna il trasferimento TARI richiede attenzione soprattutto se mantieni la disponibilità della vecchia abitazione."
+    tariNote: "A Bologna la TARI richiede attenzione alla nuova occupazione e alla cessazione della precedente; la situazione cambia se mantieni la disponibilità della vecchia casa."
   },
   {
     id: "firenze",
     name: "Firenze",
     residenceUrl: "https://servizi.comune.fi.it/sites/www.comune.fi.it/files/vademecum_migranti_2024.pdf",
     tariUrl: "https://servizi.comune.fi.it/sites/www.comune.fi.it/files/vademecum_migranti_2024.pdf",
-    tariNote: "A Firenze il Comune richiama la necessità di comunicare l'occupazione degli immobili ai fini TARI; le modalità vanno verificate sulla situazione specifica."
+    tariNote: "A Firenze verifica gli adempimenti TARI relativi all'occupazione e alla cessazione degli immobili."
   }
 ];
 
