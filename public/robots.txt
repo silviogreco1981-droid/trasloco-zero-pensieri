@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://trasloco-zero-pensieri.netlify.app/sitemap.xml
