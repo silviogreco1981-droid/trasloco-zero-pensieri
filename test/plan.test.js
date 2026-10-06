@@ -85,6 +85,12 @@ test("Senza cambio residenza non viene creato il task residenza", () => {
   assert.equal(task(plan, "residenza-non-trasferita").kind, "verify");
 });
 
+test("Utenze della vecchia casa: se intestate alla risorsa viene aggiunta la gestione della chiusura", () => {
+  const q = { ...base, oldUtilities: "si" };
+  const plan = buildPlan(q, municipalities.roma, municipalities.milano);
+  assert.equal(task(plan, "utenze-vecchia").kind, "do");
+});
+
 test("Con auto il piano evita una pratica separata per la residenza del veicolo", () => {
   const q = { ...base, car: "si" };
   const plan = buildPlan(q, municipalities.roma, municipalities.milano);
