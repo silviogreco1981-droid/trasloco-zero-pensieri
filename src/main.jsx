@@ -471,6 +471,12 @@ function Stat({ n, t }) {
   return <div className="stat"><b>{n}</b><span>{t}</span></div>;
 }
 
+function timelineBucket(item) {
+  if (item.when && item.when.indexOf("Giorno") !== -1) return "day";
+  if (item.when && item.when.indexOf("Dopo") !== -1) return "after";
+  return "before";
+}
+
 function ResultPage({
   q,
   municipality,
@@ -483,6 +489,12 @@ function ResultPage({
   setCheckoutError,
   editAnswers
 }) {
+  const timeline = {
+    before: plan.filter(item => timelineBucket(item) === "before").length,
+    day: plan.filter(item => timelineBucket(item) === "day").length,
+    after: plan.filter(item => timelineBucket(item) === "after").length
+  };
+
   return (
     <>
       <section className="resultHero">
@@ -512,6 +524,25 @@ function ResultPage({
             <div><span>NUOVA CASA</span><strong>{q.newHome === "affitto" ? "In affitto" : "Di proprietà"}</strong></div>
             <div><span>VECCHIA CASA</span><strong>{q.oldHomeOutcome === "mantengo" ? "La mantieni" : q.oldHomeOutcome === "vendo" ? "La vendi" : q.oldHomeOutcome === "non_so" ? "Da decidere" : "La lasci"}</strong></div>
             <div><span>RESIDENZA</span><strong>{q.residence === "si" ? "Da trasferire" : "Non ora"}</strong></div>
+          </div>
+        </div>
+
+        <div className="timeline">
+          <div className="timelineIntro">
+            <span className="overline">IN ORDINE TEMPORALE</span>
+            <strong>Quando muoverti</strong>
+          </div>
+          <div className="timelineStep">
+            <span>01</span>
+            <div><b>Prima del trasloco</b><small>{timeline.before} attività</small></div>
+          </div>
+          <div className="timelineStep">
+            <span>02</span>
+            <div><b>Giorno del trasloco</b><small>{timeline.day} attività</small></div>
+          </div>
+          <div className="timelineStep">
+            <span>03</span>
+            <div><b>Dopo il cambio</b><small>{timeline.after} attività</small></div>
           </div>
         </div>
 
@@ -611,11 +642,14 @@ function ResultPage({
             <small>Pagamento gestito da Stripe. Nessun abbonamento ricorrente.</small>
           </section>
         ) : (
-          <section className="paywall success">
-            <p className="eyebrow">PIANO COMPLETO SBLOCCATO</p>
-            <h2>Ora hai tutto il tuo piano.</h2>
-            <p>Trovi qui sopra tutte le attività personalizzate, con scadenze e fonti ufficiali disponibili.</p>
-          </section>
+          <>
+            <section className="paywall success">
+              <p className="eyebrow">PIANO COMPLETO SBLOCCATO</p>
+              <h2>Ora hai tutto il tuo piano.</h2>
+              <p>Trovi qui sopra tutte le attività personalizzate, con scadenze e fonti ufficiali disponibili.</p>
+            </section>
+            <button className="printButton" onClick={() => window.print()}>Stampa / salva come PDF →</button>
+          </>
         )}
       </section>
 
