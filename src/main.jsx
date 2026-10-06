@@ -376,7 +376,7 @@ function App() {
         </section>
       </section>
 
-      <section className="section faqSection">
+      <section className="section faqSection" id="faq">
         <div className="sectionIntro compact">
           <p className="eyebrow">DOMANDE FREQUENTI</p>
           <h2>Prima di iniziare.</h2>
@@ -415,7 +415,7 @@ function SiteHeader({ onStart, compact = false }) {
       </a>
       {!compact && (
         <nav className="topNav">
-          <a href="#come-funziona">Come funziona</a>
+          <a href={prefix + "#come-funziona"}>Come funziona</a>
           <a href="#piano">Il tuo piano</a>
           <a href="#faq">FAQ</a>
           <button onClick={onStart}>Inizia</button>
@@ -624,7 +624,8 @@ function ResultPage({
   );
 }
 
-function SiteFooter() {
+function SiteFooter({ result = false }) {
+  const prefix = result ? "/" : "";
   return (
     <footer>
       <div className="footerMain">
@@ -635,8 +636,8 @@ function SiteFooter() {
         <div className="footerColumn">
           <span>IL SERVIZIO</span>
           <a href="#come-funziona">Come funziona</a>
-          <a href="#piano">Crea il tuo piano</a>
-          <a href="#faq">Domande frequenti</a>
+          <a href={prefix + "#piano"}>Crea il tuo piano</a>
+          <a href={prefix + "#faq"}>Domande frequenti</a>
         </div>
         <div className="footerColumn">
           <span>RIFERIMENTI</span>
